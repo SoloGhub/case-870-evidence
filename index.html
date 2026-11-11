@@ -7,7 +7,7 @@
 <title>ملف الإثبات — 870 و2790</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@600;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=8">
+<link rel="stylesheet" href="styles.css?v=11">
 </head>
 <body>
 <header class="hero">
@@ -22,13 +22,20 @@
 </header>
 
 <nav class="modes" id="modes">
-  <button data-m="play" class="on">سرد الوقائع</button>
+  <button data-m="brief">في 5 دقائق</button>
+  <button data-m="play">سرد الوقائع</button>
   <button data-m="list">الوقائع حسب السنة</button>
-  <button data-m="proof">الإثباتات حسب القوة</button><button id="print" class="pr">طباعة / PDF</button>
+  <button data-m="said">ما قاله أحمد للمحكمة</button>
+  <button data-m="goals">الأهداف الثلاثة</button>
+  <button data-m="proof">الإثباتات حسب القوة</button>
+  <button id="print" class="pr">طباعة / PDF</button>
 </nav>
 
 <main class="wrap">
-  <section id="v-play" class="view on">
+  <p class="hint" id="hint"></p>
+  <section id="v-brief" class="view"><div id="brief"></div></section>
+
+  <section id="v-play" class="view">
     <div class="stage" id="stage"></div>
     <div class="ctrl">
       <button id="prev" aria-label="السابق">→ السابق</button>
@@ -43,9 +50,14 @@
     <div id="list"></div>
   </section>
 
-  <section id="v-proof" class="view">
-    <div id="proof"></div>
+  <section id="v-said" class="view"><div id="said"></div></section>
+
+  <section id="v-goals" class="view">
+    <div class="gtabs" id="gtabs"></div>
+    <div id="g1" class="gp on"></div><div id="g2" class="gp"></div><div id="g3" class="gp"></div><div id="g4" class="gp"></div>
   </section>
+
+  <section id="v-proof" class="view"><div id="proof"></div></section>
 
   <footer class="src">
     <h3>المصادر</h3>
@@ -62,9 +74,9 @@
   </div>
 </div>
 
-<script src="ev_auto.js?v=8"></script>
-<script src="data.js?v=8"></script>
-<script src="story.js?v=8"></script>
-<script src="app.js?v=8"></script>
+<script src="ev_auto.js?v=11"></script>
+<script src="data.js?v=11"></script>
+<script src="story.js?v=11"></script>
+<script src="app.js?v=11"></script>
 </body>
 </html>
