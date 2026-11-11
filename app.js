@@ -5,21 +5,23 @@ const TIER={s:'إثبات قوي',m:'إثبات متوسط',n:'إثبات معت
 // flatten scenes
 const key=d=>{const y=(d.match(/20\d\d/g)||['0']).pop();const m=d.match(/(\d\d)\/(\d\d)(?:\/(20\d\d))?/);return (m[3]||y)+m[2]+m[1]};
 const SC=[]; S.acts.forEach((a,ai)=>a.scenes.slice().sort((x,z)=>key(x.d)<key(z.d)?-1:1).forEach(s=>SC.push(Object.assign({act:ai,ay:a.y,ah:a.h},s))));
+const IC=s=>{const h=s.h;return /منع السفر|منع سفر/.test(h)?'ban':/إحضار|الضبط/.test(h)?'arrest':/تأمين/.test(h)?'shield':/العيد/.test(h)?'gift':/المدرسة/.test(h)?'school':/راتب/.test(h)?'work':/عقارات|الأراضي/.test(h)?'house':/إقامة|إقامته/.test(h)?'id':/المستشفى|جلطة/.test(h)?'hospital':/حجز|البنك|182,000|للخارج/.test(h)?'bank':/أمانة|الخبير/.test(h)?'bank':/يسدّد|سدّد|16,150/.test(h)?'money':/تكرار|متكررة|الطلب نفسه|مرة أخرى/.test(h)?'repeat':/بخطها|أمام المحكمة|أرفق/.test(h)?'speech':/أحمد يطلب/.test(h)?'doc':'court'};
+const ic=(n,c)=>`<img class="ic ${c||''}" src="assets/ic/${n}.png" alt="" loading="lazy">`;
 const yearOf=s=>{const m=s.d.match(/(20\d\d)/g);return m?m[m.length-1]:''};
 
 function thumbs(ids){return [].concat(ids||[]).map(id=>{const e=E[id];if(!e)return '';const img=[].concat(e.img)[0];
   return `<button class="th" data-ev="${id}" title="${esc(e.title)}"><img loading="lazy" src="assets/ev/${img}" alt=""><span>${esc(e.b||e.title)}</span></button>`}).join('')}
-function panels(s){return `${s.her?`<div class="pn her"><b>ادّعت</b><p>${esc(s.her)}</p></div>`:''}${s.me?`<div class="pn me"><b>الثابت بالمستند</b><p>${esc(s.me)}</p></div>`:''}${s.court?`<div class="pn court"><b>المحكمة</b><p>${esc(s.court)}</p></div>`:''}`}
+function panels(s){return `${s.her?`<div class="pn her">${ic('speech','pi')}<b>ادّعت طالبة التنفيذ</b><p>${esc(s.her)}</p></div>`:''}${s.me?`<div class="pn me">${ic('ok','pi')}<b>الثابت بالمستند</b><p>${esc(s.me)}</p></div>`:''}${s.court?`<div class="pn court">${ic('court','pi')}<b>المحكمة</b><p>${esc(s.court)}</p></div>`:''}`}
 
 // counters
-$('#counters').innerHTML=S.counters.map(c=>`<div class="ct"${c.e?` data-ev="${[].concat(c.e)[0]}" role="button" tabindex="0"`:''}><b>${c.n}</b><span>${esc(c.u)}</span><small>${esc(c.s)}</small></div>`).join('');
+$('#counters').innerHTML=S.counters.map((c,i)=>`<div class="ct"${c.e?` data-ev="${[].concat(c.e)[0]}" role="button" tabindex="0"`:''}>${ic(['arrest','repeat','work','x'][i],'cti')}<b>${c.n}</b><span>${esc(c.u)}</span><small>${esc(c.s)}</small></div>`).join('');
 
 // PLAYER
 let cur=0,timer=null;
 $('#track').innerHTML=S.acts.map((a,ai)=>`<div class="tk"><em>${a.y}</em><div>${SC.map((s,i)=>s.act===ai?`<button class="dot ${s.t}" data-i="${i}" title="${esc(s.d+' — '+s.h)}"></button>`:'').join('')}</div></div>`).join('');
 function show(i){cur=(i+SC.length)%SC.length;const s=SC[cur];
   $('#stage').innerHTML=`<div class="scene t-${s.t}"><div class="sh"><span class="act">${esc(s.ah)}</span><span class="tier ${s.t}">${TIER[s.t]}</span></div>
-   <time>${esc(s.d)}</time><h2>${esc(s.h)}</h2><div class="pns">${panels(s)}</div><div class="ths">${thumbs(s.e)}</div>
+   <div class="sth">${ic(IC(s),'big')}<div><time>${esc(s.d)}</time><h2>${esc(s.h)}</h2></div></div><div class="pns">${panels(s)}</div><div class="ths">${thumbs(s.e)}</div>
    <p class="pos">${cur+1} / ${SC.length}</p></div>`;
   $$('.dot').forEach(d=>d.classList.toggle('on',+d.dataset.i===cur));
   const sc=$('#stage .scene');requestAnimationFrame(()=>sc.classList.add('in'));}
@@ -34,14 +36,14 @@ show(0);
 const YEARS=['الكل','2023','2024','2025','2026'];let fy='الكل',ft='all';
 $('#yf').innerHTML=`<div class="chips">${YEARS.map(y=>`<button data-y="${y}" class="${y===fy?'on':''}">${y}</button>`).join('')}</div>
  <div class="chips">${[['all','كل المستويات'],['s','قوية'],['m','متوسطة'],['n','معتادة']].map(([k,l])=>`<button data-t="${k}" class="${k===ft?'on':''}">${l}</button>`).join('')}</div>`;
-function card(s,i){return `<article class="card t-${s.t}" id="c${i}"><div class="ch"><time>${esc(s.d)}</time><span class="tier ${s.t}">${TIER[s.t]}</span></div><h3>${esc(s.h)}</h3><div class="pns">${panels(s)}</div><div class="ths">${thumbs(s.e)}</div></article>`}
+function card(s,i){return `<article class="card t-${s.t}" id="c${i}"><div class="ch">${ic(IC(s),'mid')}<time>${esc(s.d)}</time><span class="tier ${s.t}">${TIER[s.t]}</span></div><h3>${esc(s.h)}</h3><div class="pns">${panels(s)}</div><div class="ths">${thumbs(s.e)}</div></article>`}
 function renderList(){$('#list').innerHTML=SC.map((s,i)=>({s,i})).filter(({s})=>(fy==='الكل'||s.d.includes(fy))&&(ft==='all'||s.t===ft)).map(({s,i})=>card(s,i)).join('')||'<p class="empty">لا أحداث.</p>'}
 $('#yf').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.y){fy=b.dataset.y;$$('#yf [data-y]').forEach(x=>x.classList.toggle('on',x===b))}if(b.dataset.t){ft=b.dataset.t;$$('#yf [data-t]').forEach(x=>x.classList.toggle('on',x===b))}renderList()};
 renderList();
 
 // PROOF tiers
 $('#proof').innerHTML=['s','m','n'].map(t=>`<section class="tierblk ${t}"><h2>${TIER[t]==='إثبات قوي'?'إثباتات قوية':TIER[t]==='إثبات متوسط'?'إثباتات متوسطة':'إثباتات معتادة'} <small>${SC.filter(s=>s.t===t).length}</small></h2>
- <div class="grid">${SC.map((s,i)=>s.t===t?`<button class="pc" data-go="${i}"><time>${esc(s.d)}</time><b>${esc(s.h)}</b></button>`:'').join('')}</div></section>`).join('');
+ <div class="grid">${SC.map((s,i)=>s.t===t?`<button class="pc" data-go="${i}">${ic(IC(s),'mid')}<time>${esc(s.d)}</time><b>${esc(s.h)}</b></button>`:'').join('')}</div></section>`).join('');
 $('#proof').onclick=e=>{const b=e.target.closest('[data-go]');if(!b)return;mode('play');stop();show(+b.dataset.go);window.scrollTo({top:$('.modes').offsetTop,behavior:'smooth'})};
 
 // modes
