@@ -1,7 +1,7 @@
 (function(){
 const E=window.CASE.ev, S=window.STORY, $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const TIER={s:'إثبات قوي',m:'إثبات متوسط',n:'إثبات معتاد'};
+const TIER={s:'إثبات قوي',m:'إثبات متوسط',n:'إثبات داعم'};
 // flatten scenes
 const key=d=>{const y=(d.match(/20\d\d/g)||['0']).pop();const m=d.match(/(\d\d)\/(\d\d)(?:\/(20\d\d))?/);return (m[3]||y)+m[2]+m[1]};
 const SC=[]; S.acts.forEach((a,ai)=>a.scenes.slice().sort((x,z)=>key(x.d)<key(z.d)?-1:1).forEach(s=>SC.push(Object.assign({act:ai,ay:a.y,ah:a.h},s))));
@@ -11,7 +11,7 @@ const yearOf=s=>{const m=s.d.match(/(20\d\d)/g);return m?m[m.length-1]:''};
 
 function thumbs(ids){return [].concat(ids||[]).map(id=>{const e=E[id];if(!e)return '';const img=[].concat(e.img)[0];
   return `<button class="th" data-ev="${id}" title="${esc(e.title)}"><img loading="lazy" src="assets/ev/${img}" alt=""><span>${esc(e.b||e.title)}</span></button>`}).join('')}
-function panels(s){return `${s.her?`<div class="pn her">${ic('speech','pi')}<b>ادّعت طالبة التنفيذ</b><p>${esc(s.her)}</p></div>`:''}${s.me?`<div class="pn me">${ic('ok','pi')}<b>الثابت بالمستند</b><p>${esc(s.me)}</p></div>`:''}${s.court?`<div class="pn court">${ic('court','pi')}<b>المحكمة</b><p>${esc(s.court)}</p></div>`:''}`}
+function panels(s){return `${s.her?`<div class="pn her">${ic('speech','pi')}<b>ما ورد في طلب طالبة التنفيذ</b><p>${esc(s.her)}</p></div>`:''}${s.me?`<div class="pn me">${ic('ok','pi')}<b>الثابت بالمستند</b><p>${esc(s.me)}</p></div>`:''}${s.court?`<div class="pn court">${ic('court','pi')}<b>قرار المحكمة</b><p>${esc(s.court)}</p></div>`:''}`}
 
 // counters
 $('#counters').innerHTML=S.counters.map((c,i)=>`<div class="ct"${c.e?` data-ev="${[].concat(c.e)[0]}" role="button" tabindex="0"`:''}>${ic(['arrest','repeat','work','x'][i],'cti')}<b>${c.n}</b><span>${esc(c.u)}</span><small>${esc(c.s)}</small></div>`).join('');
@@ -27,8 +27,8 @@ function show(i){cur=(i+SC.length)%SC.length;const s=SC[cur];
   const sc=$('#stage .scene');requestAnimationFrame(()=>sc.classList.add('in'));}
 $('#next').onclick=()=>{stop();show(cur+1)};$('#prev').onclick=()=>{stop();show(cur-1)};
 $('#track').onclick=e=>{const b=e.target.closest('.dot');if(b){stop();show(+b.dataset.i)}};
-function stop(){clearInterval(timer);timer=null;$('#auto').textContent='▶ تشغيل تلقائي';$('#auto').classList.remove('run')}
-$('#auto').onclick=()=>{if(timer)return stop();$('#auto').textContent='⏸ إيقاف';$('#auto').classList.add('run');show(cur+1);timer=setInterval(()=>show(cur+1),11000)};
+function stop(){clearInterval(timer);timer=null;$('#auto').textContent='عرض تلقائي';$('#auto').classList.remove('run')}
+$('#auto').onclick=()=>{if(timer)return stop();$('#auto').textContent='إيقاف العرض';$('#auto').classList.add('run');show(cur+1);timer=setInterval(()=>show(cur+1),11000)};
 document.addEventListener('keydown',e=>{if($('#lb').classList.contains('on'))return;if(!$('#v-play').classList.contains('on'))return;if(e.key==='ArrowLeft'){stop();show(cur+1)}if(e.key==='ArrowRight'){stop();show(cur-1)}});
 show(0);
 
@@ -42,13 +42,13 @@ $('#yf').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.datase
 renderList();
 
 // PROOF tiers
-$('#proof').innerHTML=['s','m','n'].map(t=>`<section class="tierblk ${t}"><h2>${TIER[t]==='إثبات قوي'?'إثباتات قوية':TIER[t]==='إثبات متوسط'?'إثباتات متوسطة':'إثباتات معتادة'} <small>${SC.filter(s=>s.t===t).length}</small></h2>
+$('#proof').innerHTML=['s','m','n'].map(t=>`<section class="tierblk ${t}"><h2>${t==='s'?'إثباتات قوية':t==='m'?'إثباتات متوسطة':'إثباتات داعمة'} <small>${SC.filter(s=>s.t===t).length}</small></h2>
  <div class="grid">${SC.map((s,i)=>s.t===t?`<button class="pc" data-go="${i}">${ic(IC(s),'mid')}<time>${esc(s.d)}</time><b>${esc(s.h)}</b></button>`:'').join('')}</div></section>`).join('');
 $('#proof').onclick=e=>{const b=e.target.closest('[data-go]');if(!b)return;mode('play');stop();show(+b.dataset.go);window.scrollTo({top:$('.modes').offsetTop,behavior:'smooth'})};
 
 // modes
 function mode(m){$$('#modes button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$$('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+m));if(m!=='play')stop()}
-$('#modes').onclick=e=>{const b=e.target.closest('button');if(b)mode(b.dataset.m)};
+$('#modes').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.id==='print'){mode('list');fy='الكل';ft='all';renderList();setTimeout(()=>window.print(),300);return}mode(b.dataset.m)};
 
 // LIGHTBOX
 const lb=$('#lb');
